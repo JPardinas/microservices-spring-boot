@@ -9,12 +9,13 @@ import org.springframework.transaction.annotation.Transactional;
 import com.jpardinas.microservicios.springboot.productos.models.dao.ProductoDao;
 import com.jpardinas.microservicios.springboot.productos.models.entity.Producto;
 
+
 @Service
-public class ProductoServiceImpl implements IProductoService {
-	
+public class ProductoServiceImpl implements IProductoService{
+
 	@Autowired
 	private ProductoDao productoDao;
-
+	
 	@Override
 	@Transactional(readOnly = true)
 	public List<Producto> findAll() {
