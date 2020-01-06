@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import com.jpardinas.microservicios.springboot.item.models.Producto;
+import com.jpardinas.microservicios.springboot.commons.models.entity.Producto;
 
 
 

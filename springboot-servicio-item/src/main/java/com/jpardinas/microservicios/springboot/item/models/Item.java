@@ -1,5 +1,6 @@
 package com.jpardinas.microservicios.springboot.item.models;
 
+import com.jpardinas.microservicios.springboot.commons.models.entity.Producto;
 
 public class Item {
 

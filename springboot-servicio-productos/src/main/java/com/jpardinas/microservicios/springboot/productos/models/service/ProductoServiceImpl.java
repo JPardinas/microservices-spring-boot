@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.jpardinas.microservicios.springboot.productos.models.dao.ProductoDao;
-import com.jpardinas.microservicios.springboot.productos.models.entity.Producto;
+import com.jpardinas.microservicios.springboot.commons.models.entity.Producto;
 
 
 @Service

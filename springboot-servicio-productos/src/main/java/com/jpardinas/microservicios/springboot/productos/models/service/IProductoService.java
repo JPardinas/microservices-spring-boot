@@ -2,7 +2,7 @@ package com.jpardinas.microservicios.springboot.productos.models.service;
 
 import java.util.List;
 
-import com.jpardinas.microservicios.springboot.productos.models.entity.Producto;
+import com.jpardinas.microservicios.springboot.commons.models.entity.Producto;
 
 
 public interface IProductoService {

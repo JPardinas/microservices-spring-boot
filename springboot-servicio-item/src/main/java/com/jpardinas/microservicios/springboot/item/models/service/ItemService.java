@@ -3,7 +3,7 @@ package com.jpardinas.microservicios.springboot.item.models.service;
 import java.util.List;
 
 import com.jpardinas.microservicios.springboot.item.models.Item;
-import com.jpardinas.microservicios.springboot.item.models.Producto;
+import com.jpardinas.microservicios.springboot.commons.models.entity.Producto;
 
 
 public interface ItemService {

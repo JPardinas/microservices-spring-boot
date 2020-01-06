@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.jpardinas.microservicios.springboot.item.clientes.ProductoClienteRest;
 import com.jpardinas.microservicios.springboot.item.models.Item;
-import com.jpardinas.microservicios.springboot.item.models.Producto;
+import com.jpardinas.microservicios.springboot.commons.models.entity.Producto;
 
 
 @Service("serviceFeign")
