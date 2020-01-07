@@ -48,7 +48,10 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 					"/api/items/**",
 					"/api/usuarios/**")
 				// Role ADMIN;
-				.hasRole("ADMIN");
+				.hasRole("ADMIN")
+			
+			// Cualquier otra ruta requiere autenficacion
+			.anyRequest().authenticated();
 				
 				
 			/*
