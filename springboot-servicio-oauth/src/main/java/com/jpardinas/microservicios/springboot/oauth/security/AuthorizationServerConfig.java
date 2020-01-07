@@ -10,7 +10,6 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.A
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
-import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 
@@ -25,17 +24,8 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 	private AuthenticationManager authenticationManager;
 	
 	
-	@Override
-	public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
-		super.configure(security);
-	}
-	@Override
-	public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-		super.configure(clients);
-	}
-	
-	
-	/*
+	/* #1#
+	 * 
 	 * Se configura:
 	 * 	- AuthorizationManager
 	 *  - TokenStorage: tipo jwt
@@ -56,7 +46,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 	
 	
 	
-	// 1
+	// 1.1
 	@Bean
 	public JwtAccessTokenConverter accessTokenConverter() {
 		// Creamos el token y añadimos el codigo secreto para el servidor de recursos
@@ -66,12 +56,51 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 	}
 	
 	
-	// 2
+	// 1.2
 	@Bean
 	public JwtTokenStore tokenStore() {
 		return new JwtTokenStore(accessTokenConverter());
 	}
 	
 	
+
+	/* #2#
+	 * 
+	 * Configurar authentificacion de la aplicacion cliente
+	 * 
+	 * */
+	@Override
+	public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
+		clients.inMemory()
+			// Username cliente
+			.withClient("frontendapp")
+			// Password codificada
+			.secret(passwordEncoder.encode("12345"))
+			// Permisos
+			.scopes("read", "write")
+			// Tipo de autentificacion, como obtener token. Con password en este caso -> datos app ciente + datos usuario
+			// Token que permite obtener token renovado
+			.authorizedGrantTypes("password", "refresh_token")
+			// Validez del token en segundos
+			.accessTokenValiditySeconds(3600)
+			// Tiempo del refresh token
+			.refreshTokenValiditySeconds(3600);
+		// .and() para anadir mas clientes
+	}
+	
+	
+	/* #3#
+	 * 
+	 * Permisos endpoints del servidor de autentificacion para generar y validar el token
+	 * 
+	 * */
+	@Override
+	public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
+		// Lo logico es que sea publico - POST: /oauth/token
+		security.tokenKeyAccess("permitAll()")
+			// Validador del token -> ruta de validacion del token requerimos autentificacion
+			// Metodo spring security valida cliente autenticado
+			.checkTokenAccess("isAuthenticated()");
+	}
 
 }
