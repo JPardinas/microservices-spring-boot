@@ -1,5 +1,7 @@
 package com.jpardinas.microservicios.springboot.oauth.security;
 
+import java.util.Arrays;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,6 +12,7 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.A
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 
@@ -23,6 +26,8 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 	@Autowired
 	private AuthenticationManager authenticationManager;
 	
+	@Autowired
+	private InfoAdicionalToken infoAdicionalToken;
 	
 	/* #1#
 	 * 
@@ -36,12 +41,19 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 	@Override
 	public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
 		
+		// Para anadir la informacion extra al token
+		TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
+		tokenEnhancerChain.setTokenEnhancers(Arrays.asList(infoAdicionalToken, accessTokenConverter()));
+		
+		
+		
 		// Le introducimos el autentificador configurado en SpringSecurityConfig
 		endpoints.authenticationManager(authenticationManager)
 			// 2. 
 			.tokenStore(tokenStore())
 			// 1. Creamos e introducimos el token converter de tipo JWT
-			.accessTokenConverter(accessTokenConverter());
+			.accessTokenConverter(accessTokenConverter())
+			.tokenEnhancer(tokenEnhancerChain);
 	}
 	
 	
@@ -86,6 +98,8 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 			// Tiempo del refresh token
 			.refreshTokenValiditySeconds(3600);
 		// .and() para anadir mas clientes
+		
+		// 'Basic ' + Base64.encode('frontendapp' + ':' + '12345') -> Basic ZnJvbnRlbmRhcHA6MTIzNDU=
 	}
 	
 	
