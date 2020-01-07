@@ -5,5 +5,7 @@ import com.jpardinas.microservicios.springboot.usuarios.commons.models.entity.Us
 public interface IUsuarioService {
 	
 	public Usuario findByUsername (String username);
+	
+	public Usuario update(Usuario usuario, Long Id);
 
 }

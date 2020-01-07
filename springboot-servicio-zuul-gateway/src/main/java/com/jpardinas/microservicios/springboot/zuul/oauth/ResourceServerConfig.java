@@ -1,7 +1,13 @@
 package com.jpardinas.microservicios.springboot.zuul.oauth;
 
+import java.util.Arrays;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
@@ -9,10 +15,18 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.R
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
+@RefreshScope
 @Configuration
 @EnableResourceServer
 public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
+	
+	@Value("${config.security.oauth.jwt.key}")
+	private String jwtKey;
 
 	@Override
 	public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
@@ -51,7 +65,12 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 				.hasRole("ADMIN")
 			
 			// Cualquier otra ruta requiere autenficacion
-			.anyRequest().authenticated();
+			.anyRequest().authenticated()
+			
+			// Volver a httpsecurity con and
+			.and()
+			// Configuracion cors
+				.cors().configurationSource(corsConfigurationSource());
 				
 				
 			/*
@@ -81,12 +100,42 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 	
 	
 
+	// Acceso a aplicaciones cliente
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
+		
+		CorsConfiguration corsConfig = new CorsConfiguration();
+		
+		//corsConfig.addAllowedOrigin("*");
+		// * cualquier origen
+		corsConfig.setAllowedOrigins(Arrays.asList("*"));
+		// OPTIONS es importante ya que lo usa oauth2
+		corsConfig.setAllowedMethods(Arrays.asList("POST", "GET", "PUT", "DELETE", "OPTIONS"));
+		
+		corsConfig.setAllowCredentials(true);
+		corsConfig.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+		
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		// ** a todas las rutas de spring security
+		source.registerCorsConfiguration("/**", corsConfig);
+		return source;
+	}
 	
+	// Para clientes externos (angular, react...)
+	// Hay que crear componente para registrar un filtro de cors global en un filtro de spring a toda la aplicacion en general
+	@Bean
+	public FilterRegistrationBean<CorsFilter> corsFilter() {
+		FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<CorsFilter>(new CorsFilter(corsConfigurationSource()));
+		// Le damos prioridad alta
+		bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
+		return bean;
+	}
+
 	@Bean
 	public JwtAccessTokenConverter accessTokenConverter() {
 		// Mismo codigo que en el servicio de seguridad
 		JwtAccessTokenConverter tokenConverter = new JwtAccessTokenConverter();
-		tokenConverter.setSigningKey("algun_codigo_secreto_aeiou");
+		tokenConverter.setSigningKey(jwtKey);
 		return tokenConverter;
 	}
 	

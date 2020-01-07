@@ -3,8 +3,10 @@ package com.jpardinas.microservicios.springboot.oauth.security;
 import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
@@ -16,9 +18,14 @@ import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 
+@RefreshScope
 @Configuration
 @EnableAuthorizationServer
 public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
+	
+	
+	@Autowired
+	private Environment env;
 	
 	// Declarados en SpringSecurityConfig.class
 	@Autowired
@@ -63,7 +70,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 	public JwtAccessTokenConverter accessTokenConverter() {
 		// Creamos el token y añadimos el codigo secreto para el servidor de recursos
 		JwtAccessTokenConverter tokenConverter = new JwtAccessTokenConverter();
-		tokenConverter.setSigningKey("algun_codigo_secreto_aeiou");
+		tokenConverter.setSigningKey(env.getProperty("config.security.oauth.jwt.key"));
 		return tokenConverter;
 	}
 	
@@ -85,9 +92,9 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 	public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
 		clients.inMemory()
 			// Username cliente
-			.withClient("frontendapp")
+			.withClient(env.getProperty("config.security.oauth.client.id"))
 			// Password codificada
-			.secret(passwordEncoder.encode("12345"))
+			.secret(passwordEncoder.encode(env.getProperty("config.security.oauth.client.secret")))
 			// Permisos
 			.scopes("read", "write")
 			// Tipo de autentificacion, como obtener token. Con password en este caso -> datos app ciente + datos usuario
