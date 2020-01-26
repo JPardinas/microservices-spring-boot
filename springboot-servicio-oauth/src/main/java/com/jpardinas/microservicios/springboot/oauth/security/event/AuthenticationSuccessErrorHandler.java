@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import com.jpardinas.microservicios.springboot.oauth.services.IUsuarioService;
 import com.jpardinas.microservicios.springboot.usuarios.commons.models.entity.Usuario;
 
+import brave.Tracer;
 import feign.FeignException;
 
 @Component
@@ -21,6 +22,9 @@ public class AuthenticationSuccessErrorHandler implements AuthenticationEventPub
 
 	@Autowired
 	private IUsuarioService usuarioService;
+	
+	@Autowired
+	private Tracer tracer;
 
 	@Override
 	public void publishAuthenticationSuccess(Authentication authentication) {
@@ -44,6 +48,7 @@ public class AuthenticationSuccessErrorHandler implements AuthenticationEventPub
 		System.out.println(mensaje);
 
 		try {
+			
 			
 			StringBuilder errors = new StringBuilder();
 			errors.append(mensaje);
@@ -69,6 +74,8 @@ public class AuthenticationSuccessErrorHandler implements AuthenticationEventPub
 			}
 			
 			usuarioService.update(usuario, usuario.getId());
+			
+			tracer.currentSpan().tag("error.mensaje", errors.toString());
 			
 		} catch (FeignException e) {
 			log.error(String.format("El usuario %s no existe en el sistema", authentication.getName()));
