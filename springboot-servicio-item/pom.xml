@@ -8,10 +8,10 @@
 		<version>2.1.11.RELEASE</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.jpardinas.microservicios.springboot.item</groupId>
-	<artifactId>springboot-servicio-item</artifactId>
+	<groupId>com.jpardinas.microservicios.springboot.items</groupId>
+	<artifactId>springboot-servicio-items</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>springboot-servicio-item</name>
+	<name>springboot-servicio-items</name>
 	<description>Demo project for Spring Boot</description>
 
 	<properties>
